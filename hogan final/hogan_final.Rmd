@@ -409,6 +409,7 @@ moore_miller_election_to_inauguration %>%
   summarize(cumulative_net = sum(net_amount, na.rm = TRUE))
 ```
 ```{r}
+#FROM MD CRIS FILINGS:
 #report info
 #Miller, Aruna Friends of
 #(#1006195)
