@@ -1,0 +1,438 @@
+---
+title: "hogan_final"
+author: "David Landerman"
+date: "2026-04-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Claims:
+#A. $685,000 in total for election campaign
+#B $1.4 million post election 11/4/2014 pre swearing in 1/21/2015
+#C. $16.1 million Total Money for re-election
+#D. Wes Moore elected with $16.5 million
+```
+
+```{r}
+#STEP 0
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(rio)
+```
+
+```{r}
+#STEP 1
+#Bring in Hogan Data from SBE, communicated over various emails
+#read csv
+#clean column names
+#note where it came from in a column
+#getting rid of whitespace/spaces in general in receiving committees and filing_periods
+#turning contribution dates into date format
+#turning money into numbers
+
+hogan_2018_contributions <- read_csv("input/email_nathan_sbe_2.25.26/Hogan 2018 Contributions.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_2.25.26/Hogan 2018 Contributions.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_contributions_email2 <- read_csv("input/email_nathan_sbe_4.9.26/Hogan Contributions_email2.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.9.26/Hogan Contributions_email2.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+contributions_hogan_rutherford_general <- read_csv("input/email_nathan_sbe_4.13.26/Contributions (Hogan-Rutherford Committee to Change Maryland - General).csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.13.26/Contributions (Hogan-Rutherford Committee to Change Maryland - General).csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+contributions_hogan_rutherford <- read_csv("input/email_nathan_sbe_4.13.26/Contributions (Hogan-Rutherford Committee to Change Maryland).csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.13.26/Contributions (Hogan-Rutherford Committee to Change Maryland).csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_contributions_1_15_15_forward <- read_csv("input/email_nathan_sbe_4.14.26/Hogan Contributions (1.15.15 forward).csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.14.26/Hogan Contributions (1.15.15 forward).csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+contributions_list_1 <- read_csv("input/email_nathan_sbe_4.27.26/ContributionsList.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.27.26/ContributionsList.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+contributions_list_2 <- read_csv("input/email_nathan_sbe_4.27.26/ContributionsList(2).csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.27.26/ContributionsList(2).csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+contributions_list_3 <- read_csv("input/email_nathan_sbe_4.27.26/ContributionsList(3).csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.27.26/ContributionsList(3).csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+contributions_list_4 <- read_csv("input/email_nathan_sbe_4.27.26/ContributionsList(4).csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.27.26/ContributionsList(4).csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_rutherford_2016_annual <- read_csv("input/email_nathan_sbe_4.28.26/Hogan - Rutherford Committee to change 2016 Annual.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan - Rutherford Committee to change 2016 Annual.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_rutherford_inaugural_2019 <- read_csv("input/email_nathan_sbe_4.28.26/Hogan - Rutherford Inaugural Committee Inc. 2019.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan - Rutherford Inaugural Committee Inc. 2019.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_2016_annual <- read_csv("input/email_nathan_sbe_4.28.26/Hogan 2016 Annual.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan 2016 Annual.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_2016_post_gen <- read_csv("input/email_nathan_sbe_4.28.26/Hogan 2016 Post-Gen.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan 2016 Post-Gen.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_2016_pre_gen2 <- read_csv("input/email_nathan_sbe_4.28.26/Hogan 2016 Pre-Gen2.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan 2016 Pre-Gen2.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_2017_annual <- read_csv("input/email_nathan_sbe_4.28.26/Hogan 2017 Annual.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan 2017 Annual.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_2019_annual <- read_csv("input/email_nathan_sbe_4.28.26/Hogan 2019 Annual.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan 2019 Annual.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+
+hogan_2020_annual <- read_csv("input/email_nathan_sbe_4.28.26/Hogan 2020 Annual.csv") %>%
+  clean_names() %>%
+  mutate(source_file = "email_nathan_sbe_4.28.26/Hogan 2020 Annual.csv") %>%
+  mutate(receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+         filing_period = str_replace_all(filing_period, "\\s+", "_")) %>%
+  mutate(contribution_date = mdy(contribution_date)) %>%
+  mutate(contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")))
+```
+```{r}
+#STEP 2
+#Bind rows and remove components
+hogan_full_sbe <- bind_rows(
+  hogan_2018_contributions,
+  hogan_contributions_email2,
+  contributions_hogan_rutherford_general,
+  contributions_hogan_rutherford,
+  hogan_contributions_1_15_15_forward,
+  contributions_list_1,
+  contributions_list_2,
+  contributions_list_3,
+  contributions_list_4,
+  hogan_rutherford_2016_annual,
+  hogan_rutherford_inaugural_2019,
+  hogan_2016_annual,
+  hogan_2016_post_gen,
+  hogan_2016_pre_gen2,
+  hogan_2017_annual,
+  hogan_2019_annual,
+  hogan_2020_annual
+) %>%
+  mutate(source_org = "SBE")
+
+rm(hogan_2018_contributions, hogan_contributions_email2, contributions_hogan_rutherford_general,
+   contributions_hogan_rutherford, hogan_contributions_1_15_15_forward, contributions_list_1,
+   contributions_list_2, contributions_list_3, contributions_list_4, hogan_rutherford_2016_annual,
+   hogan_rutherford_inaugural_2019, hogan_2016_annual, hogan_2016_post_gen, hogan_2016_pre_gen2,
+   hogan_2017_annual, hogan_2019_annual, hogan_2020_annual)
+```
+
+
+```{r}
+#remove duplicates
+#this accounts for same person/same day actual repeat donations
+hogan_full_sbe <- hogan_full_sbe %>%
+  group_by(source_file, across(-source_file)) %>%
+  mutate(within_file_occurrence = row_number()) %>%
+  ungroup() %>%
+  distinct(across(c(-source_file, -within_file_occurrence)), within_file_occurrence, .keep_all = TRUE) %>%
+  select(-within_file_occurrence)
+```
+
+
+
+```{r}
+#Phase 4
+#Bring in Wes Moore/Aruna Miller Data
+#clean names
+#rename columns
+#clean up committee and filing period
+#make contribution dates into date format
+#make contribution amount into numbers
+#note the source file and the source org
+#combine the files
+#remove the components
+wes_moore_filtered <- read_csv("input/moore_miller_mdcris_pull/wes_moore_filtered_post_innauguration.csv", skip = 1) %>%
+  clean_names() %>%
+  rename(
+    receiving_committee = committee_name,
+    contributor_address = contributor_address_line1,
+    contribution_date = transaction_date,
+    contribution_amount = transaction_amount,
+    filing_period = report
+  ) %>%
+  mutate(
+    receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+    filing_period = str_replace_all(filing_period, "\\s+", "_"),
+    contribution_date = mdy(contribution_date),
+    contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")),
+    source_file = "moore_miller_mdcris_pull/wes_moore_filtered_post_innauguration.csv",
+    source_org = "mdcris_download"
+  )
+
+aruna_miller <- read_csv("input/moore_miller_mdcris_pull/aruna_miller.csv", skip = 1) %>%
+  clean_names() %>%
+  rename(
+    receiving_committee = committee_name,
+    contributor_address = contributor_address_line1,
+    contribution_date = transaction_date,
+    contribution_amount = transaction_amount,
+    filing_period = report
+  ) %>%
+  mutate(
+    receiving_committee = str_replace_all(receiving_committee, "\\s+", "_"),
+    filing_period = str_replace_all(filing_period, "\\s+", "_"),
+    contribution_date = mdy(contribution_date),
+    contribution_amount = as.numeric(str_remove_all(contribution_amount, "[$,]")),
+    source_file = "moore_miller_mdcris_pull/aruna_miller.csv",
+    source_org = "mdcris_download"
+  )
+
+moore_miller <- bind_rows(wes_moore_filtered, aruna_miller)
+
+rm(wes_moore_filtered, aruna_miller)
+
+```
+```{r}
+#Phase 5
+#Hogan Analysis
+#split off public election funding
+#filter out public election funding, self contributions, and in-kind donations because they arent strictly people donating funds
+#split by election and pre/post election day
+public_election_funding <- hogan_full_sbe %>%
+  filter(contributor_type %in% c("Public Contribution"))
+
+hogan_analysis_base <- hogan_full_sbe %>%
+  filter(
+    !contributor_type %in% c("Public Contribution"),
+    !contribution_type %in% c("Candidate Loan", "In-Kind", "Coordinated In-Kind", "Refund/Rebate"),
+    !receiving_committee %in% c("Hogan_-_Rutherford_Inaugural_Committee_Inc.", "Hogan_Rutherford_Slate")
+  )
+
+hogan_2014_election <- hogan_analysis_base %>%
+  filter(between(contribution_date, ymd("2014-01-01"), ymd("2014-11-04")))
+
+hogan_2014_election_to_inauguration <- hogan_analysis_base %>%
+  filter(between(contribution_date, ymd("2014-11-05"), ymd("2015-01-31")))
+
+hogan_2018_election <- hogan_analysis_base %>%
+  filter(between(contribution_date, ymd("2015-02-01"), ymd("2018-11-06")))
+
+hogan_2018_election_to_inauguration <- hogan_analysis_base %>%
+  filter(between(contribution_date, ymd("2018-11-07"), ymd("2019-01-31")))
+
+```
+
+```{r}
+#Claims A and B
+cat("2014 Election:", sum(hogan_2014_election$contribution_amount, na.rm = TRUE), "\n")
+cat("2014 Election to Inauguration:", sum(hogan_2014_election_to_inauguration$contribution_amount, na.rm = TRUE), "\n")
+```
+
+
+```{r}
+#CLAIM C
+cat("2018 Election total:", sum(hogan_2014_election_to_inauguration$contribution_amount, na.rm = TRUE) + sum(hogan_2018_election$contribution_amount, na.rm = TRUE), "\n")
+cat("2018 Election to Inauguration:", sum(hogan_2018_election_to_inauguration$contribution_amount, na.rm = TRUE), "\n")
+```
+
+
+
+```{r}
+hogan_2014_timeline <- hogan_2014_election %>%
+  mutate(period = "election") %>%
+  bind_rows(hogan_2014_election_to_inauguration %>% mutate(period = "election_to_inauguration")) %>%
+  arrange(contribution_date) %>%
+  mutate(cumulative_total = cumsum(contribution_amount))
+
+ggplot(hogan_2014_timeline, aes(x = contribution_date, y = cumulative_total, color = period)) +
+  geom_line() +
+  geom_vline(xintercept = ymd("2014-11-04"), linetype = "dashed", color = "black") +
+  annotate("text", x = ymd("2014-11-04"), y = max(hogan_2014_timeline$cumulative_total) * 0.9,
+           label = "Election Day", hjust = -0.1) +
+  scale_color_manual(values = c("election" = "blue", "election_to_inauguration" = "red")) +
+  scale_y_continuous(labels = scales::dollar) +
+  labs(title = "Hogan 2014 Cumulative Donations",
+       x = "Date",
+       y = "Cumulative Total",
+       color = "Period") +
+  theme_minimal()
+
+ggsave("hogan_2014_cumulative_donations.png", width = 10, height = 6, dpi = 300)
+```
+
+```{r}
+election_final <- hogan_2014_timeline %>%
+  filter(period == "election") %>%
+  summarize(total = max(cumulative_total)) %>%
+  pull(total)
+
+hogan_2014_flourish <- hogan_2014_timeline %>%
+  group_by(contribution_date, period) %>%
+  summarize(cumulative_total = max(cumulative_total), .groups = "drop") %>%
+  pivot_wider(names_from = period, values_from = cumulative_total) %>%
+  mutate(election = if_else(contribution_date > ymd("2014-11-04"), NA_real_, election)) %>%
+  fill(election_to_inauguration, .direction = "down") %>%
+  rename(
+    Date = contribution_date,
+    `Election` = election,
+    `Election_to_Inauguration` = election_to_inauguration
+  ) %>%
+  mutate(
+    Full_Date = str_replace(format(Date, "%B %d, %Y"), " 0", " "),
+    Election_Total = case_when(
+      !is.na(`Election`) ~ formatC(`Election`, format = "f", big.mark = ",", digits = 0),
+      TRUE ~ formatC(election_final, format = "f", big.mark = ",", digits = 0)
+    ),
+    Post_Election_Subtotal = if_else(
+      !is.na(`Election_to_Inauguration`),
+      formatC(`Election_to_Inauguration` - election_final, format = "f", big.mark = ",", digits = 0),
+      NA_character_
+    )
+  )
+
+write_csv(hogan_2014_flourish, "hogan_2014_cumulative_flourish.csv")
+```
+
+
+
+
+
+```{r}
+moore_miller_analysis <- moore_miller %>%
+  filter(
+    !contribution_type %in% c("In-Kind"),
+    contribution_date <= ymd("2023-01-19")
+  ) %>%
+  mutate(
+    net_amount = if_else(
+      str_detect(contribution_type, regex("return", ignore_case = TRUE)),
+      -contribution_amount,
+      contribution_amount
+    )
+  ) %>%
+  arrange(contribution_date) %>%
+  mutate(cumulative_total = cumsum(net_amount))
+
+moore_miller_election <- moore_miller_analysis %>%
+  filter(contribution_date <= ymd("2022-11-08"))
+
+moore_miller_election_to_inauguration <- moore_miller_analysis %>%
+  filter(contribution_date > ymd("2022-11-08"))
+```
+
+```{r}
+#Claim D
+cat("Moore/Miller Election:", sum(moore_miller_election$net_amount, na.rm = TRUE), "\n")
+cat("Moore/Miller Election to Inauguration:", sum(moore_miller_election_to_inauguration$net_amount, na.rm = TRUE), "\n")
+```
+
+
+```{r}
+moore_miller_election_to_inauguration %>%
+  filter(contribution_date < ymd("2023-01-01")) %>%
+  summarize(cumulative_net = sum(net_amount, na.rm = TRUE))
+```
+```{r}
+#report info
+#Miller, Aruna Friends of
+#(#1006195)
+#Committee Name:
+#Committee Type: Candidate Committee
+#01/09/2025 - 01/14/2026Reporting Period:
+#Report Due Date: 01/21/2026
+#TOTAL CONTRIBUTIONS 1.1.2023_through_current
+#Miller: $1,500,749.11 
+
+#Committee Name:Moore, Wes For Maryland
+#(#1013630)
+#Committee Type: Candidate Committee
+#01/09/2025 - 01/14/2026Reporting Period:
+#Report Due Date: 01/21/2026
+#TOTAL CONTRIBUTIONS 1.1.2023_through_current
+#Moore: $12,034,883.44
+
+  
+cumulative_net <- moore_miller_election_to_inauguration %>%
+  filter(contribution_date < ymd("2023-01-01")) %>%
+  summarize(cumulative_net = sum(net_amount, na.rm = TRUE)) %>%
+  pull(cumulative_net)
+
+total <- cumulative_net + 1500749.11 + 12034883.44
+```
+
