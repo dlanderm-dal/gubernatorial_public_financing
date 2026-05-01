@@ -437,3 +437,25 @@ cumulative_net <- moore_miller_election_to_inauguration %>%
 total <- cumulative_net + 1500749.11 + 12034883.44
 ```
 
+
+```{r}
+#census pull by county
+library(tidyverse)
+library(tidycensus)
+md_county_pop <- get_acs(
+  geography = "county",
+  variables = "B01003_001",  # Total population variable
+  state = "MD",
+  year = 2024  # Most recent ACS 5-year estimates
+) %>%
+  select(NAME, estimate) %>%
+  rename(
+    County = NAME,
+    Population = estimate
+  ) %>%
+  mutate(County = str_remove(County, " County, Maryland")) %>%
+  arrange(desc(Population))
+
+write_csv(md_county_pop, 'md_county_pop.csv')
+```
+
