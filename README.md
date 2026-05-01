@@ -10,17 +10,21 @@ As this report contains significant data work on the campaign finances of former
 
 The legacy MDCRIS system as well as the current system are both vulnerable to minimal but inevitable inaccuracies stemming from the source of these records — campaign finance disclosures — which are subject to human error. Updating the legacy system to the new MDCRIS system is also an ongoing process and bugs are still being discovered and fixed.
 
-These CSVs were read into R and saved in the repo by the date in which they were received. Within the RMD file you will find a detailed breakdown of all data cleaning and transformations.
+These CSVs were read into R and saved in the repo by the date in which they were received, under `hogan final/input/`, in folders named for the date of the email (`email_nathan_sbe_2.25.26/`, `email_nathan_sbe_4.9.26/`, `email_nathan_sbe_4.13.26/`, `email_nathan_sbe_4.14.26/`, `email_nathan_sbe_4.27.26/`, `email_nathan_sbe_4.28.26/`).
+
+The 2.25.26 email contained `Hogan 2018 Contributions.csv` (Hogan's 2018 gubernatorial campaign). The 4.9.26 email added `Hogan Contributions_email2.csv` along with contribution files for Hogan's two general election opponents — `Brown Contributions.csv` (Anthony Brown, 2014) and `Jealous Contributions.csv` (Ben Jealous, 2018). The 4.13.26 email contained two pulls for the Hogan-Rutherford Committee to Change Maryland: `Contributions (Hogan-Rutherford Committee to Change Maryland).csv` and `Contributions (Hogan-Rutherford Committee to Change Maryland - General).csv`. The 4.14.26 email contained `Hogan Contributions (1.15.15 forward).csv`, picking up Hogan committee contributions from January 15, 2015 onward. The 4.27.26 email contained four supplemental pulls — `ContributionsList.csv`, `ContributionsList(2).csv`, `ContributionsList(3).csv`, and `ContributionsList(4).csv` — used to fill identified gaps. The 4.28.26 email contained the remaining annual and report-period filings: `Hogan 2016 Pre-Gen2.csv`, `Hogan 2016 Post-Gen.csv`, `Hogan 2016 Annual.csv`, `Hogan - Rutherford Committee to change 2016 Annual.csv`, `Hogan 2017 Annual.csv`, `Hogan 2019 Annual.csv`, `Hogan 2020 Annual.csv`, and `Hogan - Rutherford Inaugural Committee Inc. 2019.csv`.
+
+Within `hogan final/hogan_final.Rmd` you will find a detailed breakdown of all data cleaning and transformations applied to these CSVs. The cumulative-donation graphic for Hogan's 2014 race is exported to `hogan final/hogan_2014_cumulative_flourish.csv` (the data used in Flourish) and `hogan final/hogan_2014_cumulative_donations.png` (the rendered image).
 
 ## OTHER DATA CONTAINED
 
-Campaign finance data regarding the committees of Wes Moore and his running mate Aruna Miller were pulled from the current MDCRIS system. As the current system has a download limit of 50,000 entries and Wes Moore's previous 2022 campaign was the subject of the data claim, the date field was limited to donations from before he was inaugurated in January of 2023. Aruna Miller's committee did not have more than 50,000 entries total, so her CSV file is complete as of the date the data was pulled during or soon after 2026.
+Campaign finance data regarding the committees of Wes Moore and his running mate Aruna Miller were pulled from the current MDCRIS system and saved in `hogan final/input/moore_miller_mdcris_pull/`. As the current system has a download limit of 50,000 entries and Wes Moore's previous 2022 campaign was the subject of the data claim, the date field was limited to donations from before he was inaugurated in January of 2023; that pull is `wes_moore_filtered_post_innauguration.csv`. Aruna Miller's committee did not have more than 50,000 entries total, so her file — `aruna_miller.csv` — is complete as of the date the data was pulled during or soon after 2026.
 
-Basic calculations were performed on current balances of Moore and Miller's candidate committees based on reports filed in MDCRIS; that information is contained in the RMD.
+Basic calculations were performed on current balances of Moore and Miller's candidate committees based on reports filed in MDCRIS; that information is contained in `hogan final/hogan_final.Rmd`.
 
 ## TIDYCENSUS
 
-One of the graphics on the page references the populations of every Maryland county. This information was pulled using a tidycensus query.
+One of the graphics on the page references the populations of every Maryland county. This information was pulled using a tidycensus query (the code is in `hogan final/hogan_final.Rmd`) and written to `hogan final/md_county_pop.csv`.
 
 ## NOT INCLUDED
 
@@ -36,48 +40,3 @@ Method:
 5. Ensure the "Active" filter is turned off
 6. Count the total number of committees for previous elections
 7. Count the total number of committees for the current election (omit terminated committees in the current one because they have dropped out or switched to traditional campaign financing)
-
-## File Index
-
-### `hogan final/`
-
-- **`hogan_final.Rmd`** — Main R Markdown file containing all data cleaning, transformations, calculations, and analysis for the report.
-- **`hogan_2014_cumulative_donations.png`** — Graphic showing cumulative donations for Hogan's 2014 campaign.
-- **`hogan_2014_cumulative_flourish.csv`** — Cumulative donation data formatted for use in a Flourish graphic.
-- **`md_county_pop.csv`** — Maryland county populations pulled via tidycensus (ACS 2024 5-year estimates), used in the county-level map graphic.
-
-### `hogan final/input/` — Source CSVs
-
-CSVs from the State Board of Elections, organized by the date Capital News Service received them via email from Nathan at the SBE.
-
-#### `email_nathan_sbe_2.25.26/`
-- **`Hogan 2018 Contributions.csv`** — Hogan 2018 gubernatorial campaign contributions.
-
-#### `email_nathan_sbe_4.9.26/`
-- **`Hogan Contributions_email2.csv`** — Additional Hogan contributions pull (follow-up to the 2.25 batch).
-- **`Brown Contributions.csv`** — Anthony Brown 2014 gubernatorial campaign contributions (Hogan's 2014 opponent).
-- **`Jealous Contributions.csv`** — Ben Jealous 2018 gubernatorial campaign contributions (Hogan's 2018 opponent).
-
-#### `email_nathan_sbe_4.13.26/`
-- **`Contributions (Hogan-Rutherford Committee to Change Maryland - General).csv`** — Contributions to the Hogan-Rutherford Committee to Change Maryland (General account).
-- **`Contributions (Hogan-Rutherford Committee to Change Maryland).csv`** — Contributions to the Hogan-Rutherford Committee to Change Maryland (main account).
-
-#### `email_nathan_sbe_4.14.26/`
-- **`Hogan Contributions (1.15.15 forward).csv`** — Hogan committee contributions from January 15, 2015 onward.
-
-#### `email_nathan_sbe_4.27.26/`
-- **`ContributionsList.csv`**, **`ContributionsList(2).csv`**, **`ContributionsList(3).csv`**, **`ContributionsList(4).csv`** — Additional contribution pulls from the legacy system to fill identified gaps.
-
-#### `email_nathan_sbe_4.28.26/`
-- **`Hogan 2016 Pre-Gen2.csv`** — Hogan 2016 Pre-General report period contributions.
-- **`Hogan 2016 Post-Gen.csv`** — Hogan 2016 Post-General report period contributions.
-- **`Hogan 2016 Annual.csv`** — Hogan 2016 annual report contributions.
-- **`Hogan - Rutherford Committee to change 2016 Annual.csv`** — Hogan-Rutherford Committee to Change Maryland 2016 annual report contributions.
-- **`Hogan 2017 Annual.csv`** — Hogan 2017 annual report contributions.
-- **`Hogan 2019 Annual.csv`** — Hogan 2019 annual report contributions.
-- **`Hogan - Rutherford Inaugural Committee Inc. 2019.csv`** — Hogan-Rutherford Inaugural Committee Inc. 2019 contributions.
-- **`Hogan 2020 Annual.csv`** — Hogan 2020 annual report contributions.
-
-#### `moore_miller_mdcris_pull/`
-- **`wes_moore_filtered_post_innauguration.csv`** — Wes Moore committee contributions pulled from current MDCRIS, date-filtered to donations before his January 2023 inauguration (due to the 50,000-row download cap).
-- **`aruna_miller.csv`** — Aruna Miller committee contributions pulled from current MDCRIS (complete; under the 50,000-row cap).
